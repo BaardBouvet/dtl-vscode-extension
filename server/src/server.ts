@@ -23,7 +23,7 @@ import { parse } from 'jsonc-parser';
 const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager
-const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const documents = new TextDocuments<TextDocument>(TextDocument);
 
 
 class WorkspaceFileIndex {
@@ -34,11 +34,11 @@ class WorkspaceFileIndex {
     return Array.from(conflicts.keys());
   }
   // uri to sink dataset name
-  private datasets: Map<string, any> = new Map();
+  private datasets = new Map<string, any>();
   // uri to system
-  private systems: Map<string, any> = new Map();
+  private systems = new Map<string, any>();
   // uri to _id
-  private ids: Map<string, any> = new Map();
+  private ids = new Map<string, any>();
 
   public async processFile(filename: string): Promise<void> {
     const content = await fs.readFile(filename, 'utf-8');
@@ -99,7 +99,7 @@ connection.onInitialized(async () => {
   } catch (error) {
     connection.console.error('Initial workspace scan failed: ' + error);
   }
-})
+});
 
 enum Type {
   Pipe = "Pipe",
@@ -160,7 +160,8 @@ function validateJson(textDocument: TextDocument): void {
         source: 'json-lsp'
       });
     } else {
-      const {data, pointers} =sourceParse(text);
+      // TODO we might have json with errors as parse is lenient and sourceParse might fail
+      const {data, pointers} = sourceParse(text);
       if (!("_id" in json)) {
         diagnostics.push({
           severity: DiagnosticSeverity.Warning,
@@ -243,3 +244,4 @@ connection.listen();
 
 // TODO handle filenames with spaces in them (uri encode?)
 // TODO handle file deletes in the index
+// TODO handle autocompletion (based on json schemas?)
