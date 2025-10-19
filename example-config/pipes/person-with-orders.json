@@ -1,0 +1,67 @@
+{
+  "_id": "person-with-orders",
+  "sink": {
+    "dataset": "person-with-orders",
+    "type": "dataset"
+  },
+  "source": {
+    "bar": {},
+    "dataset": "person",
+    "foo": [],
+    "type": "dataset",
+    "x": [{}, {}],
+    "x2": [{
+      "a": 1
+    }, {}],
+    "xx": [1, 2],
+    "z": [
+      []
+    ],
+    "zz": [
+      [
+        []
+      ]
+    ],
+    "zzz": [
+      [{}]
+    ],
+    "zzzz": [
+      [""]
+    ]
+  },
+  "transform": {
+    "rules": {
+      "default": [
+        ["copy", "_id"], 
+        ["add", "type", "customer"], 
+        ["add", "name", 
+          ["upper", 
+            ["lower", "_S.name"]
+          ]
+        ], 
+        ["add", "orders", 
+          ["sorted", "_.amount", 
+            ["apply-hops", "order", {
+              "datasets": ["orders o"],
+              "where": [
+                ["eq", "_S._id", "o.cust_id"]
+              ]
+            }]
+          ]
+        ], 
+        ["add", "order_count", 
+          ["count", "_T.orders"]
+        ], 
+        ["filter", 
+          ["gt", "_T.order_count", 10]
+        ]
+      ],
+      "order": [
+        ["copy", "_id"], 
+        ["add", "amount", "_S.amount"]
+      ]
+    },
+    "type": "dtl"
+  },
+  "type": "pipe"
+}
